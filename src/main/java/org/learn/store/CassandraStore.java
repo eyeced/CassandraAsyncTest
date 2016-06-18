@@ -22,10 +22,10 @@ public class CassandraStore {
     private Session session;
 
     @Value("${cassandra.contactPoints}")
-    private String contactPoints;
+    private String contactPoints = "localhost";
 
     @Value("${cassandra.keyspace}")
-    private String keyspace;
+    private String keyspace = "async";
 
     /** caching prepared statements. */
     private Map<String, PreparedStatement> statementMap = new ConcurrentHashMap<>();
@@ -36,15 +36,6 @@ public class CassandraStore {
                 .addContactPoints(cp)
                 .withProtocolVersion(ProtocolVersion.NEWEST_SUPPORTED)
                 .withPort(9042);
-        cluster = builder.build();
-        session = cluster.connect(keyspace);
-    }
-
-    public CassandraStore(int port, String keyspace, String... contactPoints) {
-        Cluster.Builder builder = Cluster.builder()
-                .addContactPoints(contactPoints)
-                .withProtocolVersion(ProtocolVersion.NEWEST_SUPPORTED)
-                .withPort(port);
         cluster = builder.build();
         session = cluster.connect(keyspace);
     }
@@ -83,5 +74,13 @@ public class CassandraStore {
         BoundStatement boundStatement = new BoundStatement(getStatement(cql));
         boundStatement.bind(args);
         return session.executeAsync(boundStatement);
+    }
+
+    public void setContactPoints(String contactPoints) {
+        this.contactPoints = contactPoints;
+    }
+
+    public void setKeyspace(String keyspace) {
+        this.keyspace = keyspace;
     }
 }
