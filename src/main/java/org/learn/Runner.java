@@ -3,6 +3,7 @@ package org.learn;
 import org.learn.data.Reading;
 import org.learn.generate.DataGenerator;
 import org.learn.processor.AsyncFutureProcessor;
+import org.learn.processor.AsyncRxJavaProcessor;
 import org.learn.processor.SyncProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +38,29 @@ public class Runner implements CommandLineRunner {
     @Autowired
     private AsyncFutureProcessor asyncFutureProcessor;
 
+    @Autowired
+    private AsyncRxJavaProcessor rxJavaProcessor;
+
     @Override
     public void run(String... strings) throws Exception {
         List<Reading> readings = dataGenerator.generate(numOfMessages);
+
+        LOGGER.info("Starting sync process ..... ");
         time(() -> syncProcessor.process(readings));
 
         LOGGER.info("Waiting for 15s");
         Thread.sleep(15000);
 
+        LOGGER.info("Starting async with future process");
         time(() -> asyncFutureProcessor.process(readings));
+
+        LOGGER.info("Waiting for 15s");
+        Thread.sleep(15000);
+
+        LOGGER.info("Starting async with future process");
+        time(() -> rxJavaProcessor.process(readings));
+
+        LOGGER.info("Done");
     }
 
     private void time(Action0 action0) {
