@@ -22,7 +22,7 @@ public class CassandraStore {
     private Session session;
 
     @Value("${cassandra.contactPoints}")
-    private String contactPoints = "localhost";
+    private String contactPoints = "lnxapp121,lnxapp120,lnxapp119,lnxapp329";
 
     @Value("${cassandra.keyspace}")
     private String keyspace = "async";

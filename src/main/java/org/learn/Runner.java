@@ -45,11 +45,11 @@ public class Runner implements CommandLineRunner {
     public void run(String... strings) throws Exception {
         List<Reading> readings = dataGenerator.generate(numOfMessages);
 
-        LOGGER.info("Starting sync process ..... ");
-        time(() -> syncProcessor.process(readings));
-
-        LOGGER.info("Waiting for 15s");
-        Thread.sleep(15000);
+//        LOGGER.info("Starting sync process ..... ");
+//        time(() -> syncProcessor.process(readings));
+//
+//        LOGGER.info("Waiting for 15s");
+//        Thread.sleep(15000);
 
         LOGGER.info("Starting async with future process");
         time(() -> asyncFutureProcessor.process(readings));

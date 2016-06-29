@@ -20,7 +20,7 @@ public class AsyncFutureProcessor extends AbstractProcessor {
      */
     @Override
     public void process(List<Reading> readings) {
-        readings.parallelStream()
+        readings.stream()
                 .map(reading -> cassandraStore.async(insertCql, readToArgs(reading)))
                 .forEach(resultSetFuture -> {
                     try {
