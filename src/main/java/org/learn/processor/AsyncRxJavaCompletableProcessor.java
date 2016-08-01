@@ -1,21 +1,21 @@
 package org.learn.processor;
 
-import com.datastax.driver.core.ResultSet;
 import org.learn.data.Reading;
 import org.springframework.stereotype.Component;
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
- * Created by abhiso on 6/18/16.
+ * Created by abhiso on 7/8/16.
  */
 @Component
-public class AsyncCompletableFutureProcessor extends AbstractProcessor {
+public class AsyncRxJavaCompletableProcessor extends AbstractProcessor {
 
     /**
      * start the process
@@ -25,7 +25,7 @@ public class AsyncCompletableFutureProcessor extends AbstractProcessor {
     @Override
     public void process(List<Reading> readings) {
         Executor executor = Executors.newFixedThreadPool(16);
-        final List<CompletableFuture<ResultSet>> collect = readings.parallelStream()
+        Observable.from(readings)
                 .map(reading -> cassandraStore.async(insertCql, readToArgs(reading)))
                 .map(resultSetFuture -> CompletableFuture.supplyAsync(() -> {
                     try {
@@ -34,10 +34,8 @@ public class AsyncCompletableFutureProcessor extends AbstractProcessor {
                         throw new RuntimeException(e);
                     }
                 }, executor))
-                .collect(Collectors.toList());
-
-        collect.stream()
                 .map(CompletableFuture::join)
-                .collect(Collectors.toList());
+                .subscribeOn(Schedulers.io())
+                .subscribe(row -> {}, throwable -> {}, () -> {});
     }
 }
